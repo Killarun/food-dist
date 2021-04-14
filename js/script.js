@@ -250,8 +250,11 @@ class MenuCard {
             form.insertAdjacentElement('afterend', statusMessage);// добавляем сообщение в конец блока
 
 
-            const request = new XMLHttpRequest(); // запрос на сервер
-            request.open('POST', 'server.php'); // метод и адрес
+            //const request = new XMLHttpRequest(); // запрос на сервер
+            //request.open('POST', 'server.php'); // метод и адрес
+
+
+        
 
             request.setRequestHeader('Content-type', 'aplication/json'); //устанавливаем параметры
             const formData = new FormData(form); //новый объект
@@ -262,20 +265,42 @@ class MenuCard {
                 object[key] = value;
             });
 
-            const json = JSON.stringify(object); // переводим в json
+            
 
 
             request.send(json); // отправляем
-            request.addEventListener('load', () => { //вешаем обработчик на событие 200 и остальные 
-                if(request.status === 200) {
-                    console.log(request.response);
-                    showThanksModal(message.success);
-                    form.reset();
-                        statusMessage.remove();                 
-                } else {
-                    showThanksModal(message.failure);
-                }
-            });
+
+
+            fetch('server.php', {
+                method: "POST",
+                headers: {
+            'Content-type': 'application/json',
+                body: JSON.stringify(object) 
+        }
+            })
+            .then(data => data.text())
+            .then(data =>{ //data получает данные от formData
+                console.log(data);
+                showThanksModal(message.success);
+                statusMessage.remove();   
+            })
+            .catch(() =>{
+                showThanksModal(message.failure);
+            })
+            .finally(() => {
+                form.reset();
+            })
+
+            // request.addEventListener('load', () => { //вешаем обработчик на событие 200 и остальные 
+            //     if(request.status === 200) {
+            //         console.log(request.response);
+            //         showThanksModal(message.success);
+            //         form.reset();
+            //             statusMessage.remove();                 
+            //     } else {
+            //         showThanksModal(message.failure);
+            //     }
+            // });
         });
     }
 
@@ -304,6 +329,17 @@ class MenuCard {
             closeModal(); //закрываем окно по таймауту 4 секунды
         }, 4000);
     };
+
+
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: "POST",
+        body: JSON.stringify({name: 'Alex'}),
+        headers: {
+            'Content-type': 'application/json'
+        }
+    })
+    .then(response => response.json()) //возвращает промис
+    .then(json => console.log(json));
 
 });
 
